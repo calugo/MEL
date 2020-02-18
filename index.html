@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Blah</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+	</head>
+	<body>
+
+		<!--div id="info"><a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> -parametric ellipsoid</div-->
+
+		<script type="module">
+
+			import * as THREE from './three.js-master/build/three.module.js';
+      import { GUI } from './three.js-master/examples/jsm/libs/dat.gui.module.js';
+			import { OrbitControls } from './three.js-master/examples/jsm/controls/OrbitControls.js';
+			import { ParametricGeometries } from './three.js-master/examples/jsm/geometries/ParametricGeometries.js';
+			//import { ConvexBufferGeometry } from './jsm/geometries/ConvexGeometry.js';
+
+			var group, camera, scene, renderer;
+			var ellipsoidgeometry;
+			var ellipsoidmesh1;
+			var ellipsoidmesh2;
+			var ellipsoidmesh3;
+			var ellipsoidmesh4;
+			var ellipsoidmesh5;
+			var NLAT = 40, NLON =20, a1=1.0, a2=1.0, a3=0.5;
+
+			var API = {
+				//color: 0xffffff,
+				a1: a1,
+				a2: a2,
+				a3: a3
+			};
+
+
+			init();
+			animate();
+
+
+			function ellipsoid (nk) {
+		         //var latitudeBands=30,longitudeBands=20,a=6,b=7,c=20,
+						 var size=4;
+						 var Nk=5;
+						 ///var nk=0;
+						 var lono = nk*(NLON/5);
+						 var lonf = (nk+1)*(NLON/5);
+		         for (var ln=0; ln <= NLAT; ln++)
+		             {
+		                 var theta = (ln *      Math.PI /(2*NLAT));
+		                 var sinTheta = Math.sin(theta);
+		                 var cosTheta = Math.cos(theta);
+
+		                  for (var lon=lono; lon <= lonf; lon++)
+		                  {
+		                     var phi = (lon  * 2* Math.PI / NLON);
+		                     var sinPhi = Math.sin(phi);
+		                     var cosPhi = Math.cos(phi);
+
+                         var r=Math.sqrt(a1*a1+a2*a2+a3*a3);
+		                     var x = (a1/r)*cosPhi* sinTheta ;
+		                     var z = (a2/r)*sinTheta*sinPhi;
+		                     var y = (a3/r)*cosTheta;
+		                     ellipsoidgeometry.vertices.push(new THREE.Vector3( x*size,y*size,z*size));
+
+		                 }
+
+
+		         }
+		         for (var lN = 0; lN < NLAT; lN++) {
+		           for (var loN = 0; loN < NLON; loN++) {
+		         var first = (lN * (NLON + 1)) + loN;
+		         var second = first + NLON + 1;
+		         ellipsoidgeometry.faces.push(new THREE.Face3(first,second,first+1));
+		         ellipsoidgeometry.faces.push(new THREE.Face3(second,second+1,first+1));
+
+		           }
+		         }
+		     }
+
+
+			function init() {
+
+				scene = new THREE.Scene();
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				// camera
+
+				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
+				camera.position.set( 5, 5, 5 );
+				scene.add( camera );
+
+				// controls
+
+				var controls = new OrbitControls( camera, renderer.domElement );
+				//controls.minDistance = 20;
+				//controls.maxDistance = 50;
+				controls.maxPolarAngle = Math.PI / 2;
+
+				scene.add( new THREE.AmbientLight( 0x222222 ) );
+
+				// light
+
+				var light = new THREE.PointLight( 0xffffff, 1 );
+				camera.add( light );
+
+				// helper
+
+				scene.add( new THREE.AxesHelper( 20 ) );
+
+				//var geometry, object;
+				//var a1 = 1.0
+				//var a2 = 1.0
+				//var a3 = 1.0
+
+
+        function graphel(){
+
+
+				for (let i = scene.children.length - 1; i >= 0; i--) {
+	    	if(scene.children[i].type === "Mesh")
+	        	scene.remove(scene.children[i]);
+					}
+
+				ellipsoidgeometry =new THREE.Geometry();
+			  ellipsoid(0);
+				var redmaterial =  new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
+				ellipsoidmesh1 = new THREE.Mesh(ellipsoidgeometry,redmaterial);
+			  scene.add(ellipsoidmesh1);
+				//var bmaterial =  new THREE.MeshBasicMaterial( { color: 0x8333ff} );
+				//ellipsoidmesh = new THREE.Mesh(ellipsoidgeometry,bmaterial);
+				//scene.add(ellipsoidmesh);
+
+
+
+
+				ellipsoidgeometry =new THREE.Geometry();
+				ellipsoid(1);
+				var yellowmaterial =  new THREE.MeshBasicMaterial( { color: 0xe9ff33, wireframe: true } );
+				ellipsoidmesh2 = new THREE.Mesh(ellipsoidgeometry,yellowmaterial);
+				scene.add(ellipsoidmesh2);
+				//var bmaterial =  new THREE.MeshBasicMaterial( { color: 0x8333ff} );
+				//ellipsoidmesh = new THREE.Mesh(ellipsoidgeometry,bmaterial);
+				//scene.add(ellipsoidmesh);
+
+
+
+				ellipsoidgeometry =new THREE.Geometry();
+			  ellipsoid(2);
+				var bluematerial =  new THREE.MeshBasicMaterial( { color: 0x3377ff, wireframe: true } );
+				ellipsoidmesh3 = new THREE.Mesh(ellipsoidgeometry,bluematerial);
+			  scene.add(ellipsoidmesh3);
+				//var bmaterial =  new THREE.MeshBasicMaterial( { color: 0x8333ff} );
+				//ellipsoidmesh = new THREE.Mesh(ellipsoidgeometry,bmaterial);
+				//scene.add(ellipsoidmesh);
+
+
+				ellipsoidgeometry =new THREE.Geometry();
+			  ellipsoid(3);
+				var greenmaterial =  new THREE.MeshBasicMaterial( { color: 0x5eff33, wireframe: true } );
+				ellipsoidmesh4 = new THREE.Mesh(ellipsoidgeometry,greenmaterial);
+			  scene.add(ellipsoidmesh4);
+				//var bmaterial =  new THREE.MeshBasicMaterial( { color: 0x8333ff} );
+				//ellipsoidmesh = new THREE.Mesh(ellipsoidgeometry,bmaterial);
+				//scene.add(ellipsoidmesh);
+
+
+				ellipsoidgeometry =new THREE.Geometry();
+			  ellipsoid(4);
+				var pinkmaterial =  new THREE.MeshBasicMaterial( { color: 0xf033ff, wireframe: true } );
+				ellipsoidmesh5 = new THREE.Mesh(ellipsoidgeometry,pinkmaterial);
+			  scene.add(ellipsoidmesh5);
+				//var bmaterial =  new THREE.MeshBasicMaterial( { color: 0x8333ff} );
+				//ellipsoidmesh = new THREE.Mesh(ellipsoidgeometry,bmaterial);
+				//scene.add(ellipsoidmesh);
+				console.log(scene)
+
+			  }
+				//var geometry, object;
+				//geometry = new THREE.ParametricBufferGeometry( ParametricGeometries.klein, 20, 20 );
+				//object = new THREE.Mesh( geometry, material );
+				//object.position.set( 0, 0, 0 );
+				//object.scale.multiplyScalar( 5 );
+				//scene.add( object );
+
+				// textures
+
+				//var loader = new THREE.TextureLoader();
+				//var texture = loader.load( 'textures/sprites/disc.png' );
+
+				//group = new THREE.Group();
+				//scene.add( group );
+
+				// points
+
+				//var vertices = new THREE.DodecahedronGeometry( 10 ).vertices;
+
+				//for ( var i = 0; i < vertices.length; i ++ ) {
+
+					//vertices[ i ].add( randomPoint().multiplyScalar( 2 ) ); // wiggle the points
+
+				//}
+
+				//var pointsMaterial = new THREE.PointsMaterial( {
+
+				//	color: 0x0080ff,
+				//	map: texture,
+				//	size: 1,
+				//	alphaTest: 0.5
+
+				//} );
+
+				//var pointsGeometry = new THREE.BufferGeometry().setFromPoints( vertices );
+
+				//var points = new THREE.Points( pointsGeometry, pointsMaterial );
+				//group.add( points );
+
+				// convex hull
+
+				//var meshMaterial = new THREE.MeshLambertMaterial( {
+				//	color: 0xffffff,
+				//	opacity: 0.5,
+				//	transparent: true
+				//} );
+
+				//var meshGeometry = new ConvexBufferGeometry( vertices );
+
+				//var mesh = new THREE.Mesh( meshGeometry, meshMaterial );
+				//mesh.material.side = THREE.BackSide; // back faces
+				//mesh.renderOrder = 0;
+				//group.add( mesh );
+
+				//var mesh = new THREE.Mesh( meshGeometry, meshMaterial.clone() );
+				//mesh.material.side = THREE.FrontSide; // front faces
+				//mesh.renderOrder = 1;
+				//group.add( mesh );
+
+				//
+
+				// gui
+			var gui = new GUI();
+
+			gui.add( API, 'a1', 0.5, 2 )
+				.onChange( function () {
+					a1=API.a1;
+					console.log(a1)
+					graphel();
+					render();
+					//renderer.toneMappingExposure = API.exposure; render();
+
+				} );
+
+			gui.add( API, 'a2', 0.5, 2 )
+					.onChange( function (){
+						a2=API.a2;
+						console.log(a2);
+						graphel();
+						render();
+					//	renderer.toneMappingExposure = API.exposure; render();
+
+					} );
+
+			gui.add( API, 'a3', 0.5, 2 )
+		 				.onChange( function () {
+
+							a3=API.a3;
+							console.log(a3);
+							graphel();
+							render();
+
+		 		} );
+
+			gui.domElement.style.webkitUserSelect = 'none';
+
+
+				window.addEventListener( 'resize', onWindowResize, false );
+				graphel();
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				//group.rotation.y += 0.005;
+
+				render();
+
+			}
+
+			function render() {
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>
